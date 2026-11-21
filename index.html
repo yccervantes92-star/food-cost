@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Food Cost – Control de costos de ventas y operaciones</title>
+<style>
+:root{
+  --g:#1e7a46;--g2:#145c33;--g-bg:#e3f4ea;--g-tx:#17603a;
+  --y:#a86b0c;--y-bg:#fdf1d6;--r:#b83227;--r-bg:#fde4e1;--b-bg:#e6eefb;--b-tx:#2b5aa8;
+  --bg:#f3f5f2;--card:#fff;--tx:#1f2a24;--mut:#6b7a71;--ln:#e2e8e3;--rad:12px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx);font-size:14px}
+header{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;padding:18px 20px 14px}
+.hwrap{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:20px;font-weight:700}
+h1 small{display:block;font-weight:400;font-size:13px;opacity:.85;margin-top:2px}
+.cfg{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.cfg label{display:flex;align-items:center;gap:8px;font-size:13px}
+.cfg input[type=number]{width:70px;padding:6px 8px;border-radius:8px;border:0;font-size:14px;font-weight:600;color:var(--g2)}
+.cfg input[type=checkbox]{width:17px;height:17px;accent-color:#fff}
+.hbtn{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer}
+.hbtn:hover{background:rgba(255,255,255,.25)}
+nav{background:#fff;border-bottom:1px solid var(--ln);position:sticky;top:0;z-index:5}
+.tabs{max-width:1200px;margin:0 auto;display:flex;overflow-x:auto;padding:0 12px}
+.tab{border:0;background:none;padding:13px 16px;font-size:14px;font-weight:600;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+.tab.on{color:var(--g);border-bottom-color:var(--g)}
+main{max-width:1200px;margin:0 auto;padding:18px 14px 40px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border-radius:var(--rad);box-shadow:0 1px 3px rgba(0,0,0,.06);border:1px solid var(--ln);padding:16px;margin-bottom:16px}
+.card h2{margin:0 0 12px;font-size:16px}
+.card h2 .sub{font-weight:400;color:var(--mut);font-size:12px;margin-left:6px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--ln);border-radius:var(--rad);padding:14px}
+.kpi .l{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.03em}
+.kpi .v{font-size:24px;font-weight:700;margin:4px 0 2px;white-space:nowrap}
+@media(max-width:560px){.kpis{grid-template-columns:1fr 1fr}.kpi .v{font-size:18px}.kpi{padding:11px}}
+.kpi .s{font-size:12px;color:var(--mut)}
+.alert{border-radius:var(--rad);padding:14px 16px;margin-bottom:16px;border:1px solid}
+.alert.bad{background:var(--r-bg);border-color:#f3b8b1;color:#7a1f17}
+.alert.ok{background:var(--g-bg);border-color:#b5dfc5;color:var(--g-tx)}
+.alert b.t{display:block;font-size:15px;margin-bottom:6px}
+.alert ol{margin:6px 0 0 18px;padding:0}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--mut);font-weight:600;padding:8px;border-bottom:2px solid var(--ln);white-space:nowrap}
+td{padding:6px 8px;border-bottom:1px solid var(--ln);vertical-align:middle}
+td.n,th.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+tfoot td{font-weight:700;border-top:2px solid var(--ln);border-bottom:0}
+td input,td select{width:100%;padding:6px 7px;border:1px solid var(--ln);border-radius:7px;font-size:13px;background:#fbfcfb}
+td input[type=number]{text-align:right;min-width:72px}
+td input:focus,td select:focus,.field input:focus,select:focus{outline:2px solid var(--g);outline-offset:-1px;background:#fff}
+.tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+.tag.ok{background:var(--g-bg);color:var(--g-tx)}.tag.warn{background:var(--y-bg);color:var(--y)}
+.tag.bad{background:var(--r-bg);color:var(--r)}.tag.gray{background:#eef1ef;color:var(--mut)}.tag.blue{background:var(--b-bg);color:var(--b-tx)}
+.neg{color:var(--r);font-weight:600}.pos{color:var(--b-tx)}
+.btn{background:var(--g);color:#fff;border:0;border-radius:8px;padding:8px 13px;font-size:13px;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--g2)}
+.btn.sec{background:#fff;color:var(--g);border:1px solid var(--g)}
+.btn.del{background:#fff;color:var(--r);border:1px solid #f0c2bd}
+.btn.del:hover{background:var(--r-bg)}
+.x{background:none;border:0;color:#b9c2bc;font-size:18px;cursor:pointer;padding:2px 6px;border-radius:6px}
+.x:hover{color:var(--r);background:var(--r-bg)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;align-items:start}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut);flex:1;min-width:150px}
+.field input,select.big{padding:8px 10px;border:1px solid var(--ln);border-radius:8px;font-size:14px;color:var(--tx)}
+select.big{min-width:220px;background:#fff}
+.res{display:grid;gap:10px}
+.res .it{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#f7f9f7;border-radius:9px}
+.res .it span{color:var(--mut);font-size:13px}.res .it b{font-size:16px}
+.res .big{background:var(--g-bg)}
+.pbar{height:6px;background:#edf1ee;border-radius:3px;overflow:hidden;margin-top:3px;min-width:60px}
+.pbar i{display:block;height:100%;background:var(--g)}
+.chart{display:grid;gap:12px}
+.cr{display:grid;grid-template-columns:140px 1fr 64px;gap:10px;align-items:center}
+@media(max-width:560px){.cr{grid-template-columns:96px 1fr 56px}}
+.cr .nm{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track{position:relative;height:26px;background:#f1f4f2;border-radius:6px}
+.fill{height:100%;border-radius:6px;transition:width .25s}
+.fill.ok{background:#3aa36a}.fill.warn{background:#e0a526}.fill.bad{background:#d24b3e}.fill.gray{background:#c5ccc8}
+.metaL{position:absolute;top:-5px;bottom:-5px;width:0;border-left:2px dashed #1f2a24}
+.metaL span{position:absolute;top:-17px;left:-24px;font-size:10px;font-weight:700;white-space:nowrap;background:#fff;padding:0 3px}
+.cr .vl{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:12px;color:var(--mut)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.note{font-size:12px;color:var(--mut);margin:8px 0 0}
+.empty{color:var(--mut);padding:20px;text-align:center}
+.unit{color:var(--mut);font-size:12px}
+.sync{font-size:12px;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.15);white-space:nowrap}
+.sync.ok{background:rgba(255,255,255,.22)}.sync.pend{background:#f5c451;color:#4a3300}.sync.err{background:#ffb4ab;color:#5c0f08}
+#login{position:fixed;inset:0;background:linear-gradient(135deg,var(--g),var(--g2));display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+#login form{background:#fff;border-radius:14px;padding:26px;width:100%;max-width:360px;display:grid;gap:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+#login h2{margin:0;color:var(--g2)}#login p{margin:0;color:var(--mut);font-size:13px}
+#login input{padding:10px 12px;border:1px solid var(--ln);border-radius:8px;font-size:14px}
+#loginErr{color:var(--r);font-size:13px;min-height:16px}
+#loading{position:fixed;inset:0;background:rgba(243,245,242,.85);display:none;align-items:center;justify-content:center;z-index:40;font-weight:600;color:var(--g2)}
+</style>
+</head>
+<body>
+<div id="login" style="display:none"><form id="loginForm">
+  <h2>Food Cost</h2><p>Ingresa con tu usuario</p>
+  <input type="email" id="lgEmail" placeholder="Correo" required autocomplete="username">
+  <input type="password" id="lgPass" placeholder="Contraseña" required autocomplete="current-password">
+  <button class="btn" type="submit" id="lgBtn">Ingresar</button>
+  <div id="loginErr"></div>
+</form></div>
+<div id="loading">Cargando datos…</div>
+<header>
+  <div class="hwrap">
+    <h1>Food Cost<small>Control de costos de ventas y operaciones</small></h1>
+    <div class="cfg">
+      <label>Meta de Food Cost % <input type="number" id="cfgMeta" data-b="cfg.meta" min="1" max="100" step="0.5"></label>
+      <label><input type="checkbox" id="cfgIGV" data-b="cfg.incIGV"> Precios incluyen IGV (11%)</label>
+      <span id="syncStatus" class="sync">—</span>
+      <button class="hbtn" id="btnReload" title="Traer los últimos datos de la base">Recargar</button>
+      <button class="hbtn" id="btnExport">Exportar</button>
+      <button class="hbtn" id="btnImport">Importar</button>
+      <button class="hbtn" id="btnReset">Datos de ejemplo</button>
+      <button class="hbtn" id="btnLogout" title="">Salir</button>
+      <input type="file" id="fileImport" accept=".json" hidden>
+    </div>
+  </div>
+</header>
+<nav><div class="tabs">
+  <button class="tab on" data-tab="resumen">Resumen</button>
+  <button class="tab" data-tab="insumos">Insumos</button>
+  <button class="tab" data-tab="recetas">Recetas</button>
+  <button class="tab" data-tab="ventas">Ventas y consumo real</button>
+</div></nav>
+
+<main>
+  <section id="resumen" class="on"></section>
+
+  <section id="insumos">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <h2 style="margin:0">Insumos <span class="sub">Costos de compra sin IGV · Costo aprovechable = costo ÷ (1 − merma)</span></h2>
+        <button class="btn" id="addIns">+ Agregar insumo</button>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Insumo</th><th>Unidad</th><th class="n">Costo compra (S/)</th><th class="n">% Merma</th><th class="n">Costo aprovechable</th><th class="n">Usado en</th><th></th></tr></thead>
+        <tbody id="insBody"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section id="recetas">
+    <div class="card">
+      <div class="row">
+        <select class="big" id="recSel"></select>
+        <button class="btn" id="recNew">+ Nueva receta</button>
+        <button class="btn del" id="recDel">Eliminar receta</button>
+      </div>
+    </div>
+    <div id="recWrap"></div>
+  </section>
+
+  <section id="ventas">
+    <div class="card">
+      <h2>Unidades vendidas por plato <span class="sub">del período</span></h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Plato</th><th class="n">Precio venta</th><th class="n">Unidades vendidas</th><th class="n">Ventas netas</th><th class="n">Costo teórico</th></tr></thead>
+        <tbody id="venBody"></tbody>
+        <tfoot><tr><td>Total</td><td></td><td class="n" data-o="venU"></td><td class="n" data-o="venN"></td><td class="n" data-o="venC"></td></tr></tfoot>
+      </table></div>
+    </div>
+    <div class="card">
+      <h2>Consumo real vs teórico por insumo <span class="sub">Real = inicial + compras − final · Teórico = ventas × receta ÷ (1 − merma)</span></h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Insumo</th><th>Und.</th><th class="n">Inv. inicial</th><th class="n">Compras</th><th class="n">Inv. final</th><th class="n">Consumo real</th><th class="n">Consumo teórico</th><th class="n">Dif. unid.</th><th class="n">Dif. S/</th><th>Estado</th></tr></thead>
+        <tbody id="invBody"></tbody>
+        <tfoot><tr><td colspan="5">Total valorizado (S/)</td><td class="n" data-o="invR"></td><td class="n" data-o="invT"></td><td></td><td class="n" data-o="invD"></td><td></td></tr></tfoot>
+      </table></div>
+      <p class="note">Diferencia positiva = se consumió más de lo que indican las recetas (pérdida). Negativa = sobrante: revisar porciones, recetas o conteo de inventario.</p>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const IGV = 0.11;
+let S = null;
+
+/* ---------- utilidades ---------- */
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const num = v => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
+const r2 = n => Math.round(n * 100) / 100;
+const fS = n => 'S/ ' + (isFinite(n) ? n : 0).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const fQ = n => (isFinite(n) ? n : 0).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const fP = n => n == null || !isFinite(n) ? '—' : (n * 100).toLocaleString('es-PE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + '%';
+const fPts = n => (n >= 0 ? '+' : '') + (n * 100).toLocaleString('es-PE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' pts';
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+/* ---------- datos de ejemplo ---------- */
+function seed() {
+  const I = [
+    ['lomo', 'Lomo fino de res', 'kg', 48, 12],
+    ['cebolla', 'Cebolla roja', 'kg', 3.5, 10],
+    ['tomate', 'Tomate', 'kg', 3.8, 8],
+    ['ajiam', 'Ají amarillo', 'kg', 9, 15],
+    ['papa', 'Papa amarilla', 'kg', 3, 15],
+    ['arroz', 'Arroz extra', 'kg', 4.2, 0],
+    ['pescado', 'Pescado fresco (corvina)', 'kg', 30, 35],
+    ['limon', 'Limón', 'kg', 6, 45],
+    ['camote', 'Camote', 'kg', 3, 15],
+    ['choclo', 'Choclo', 'und', 1.5, 5],
+    ['gallina', 'Pechuga de gallina', 'kg', 14, 25],
+    ['leche', 'Leche evaporada (lata 400 g)', 'und', 4.2, 0],
+    ['pan', 'Pan de molde', 'kg', 9.5, 0],
+    ['maiz', 'Maíz morado', 'kg', 7, 5],
+    ['pina', 'Piña', 'kg', 3.5, 45],
+    ['azucar', 'Azúcar rubia', 'kg', 4, 0],
+  ];
+  const insumos = I.map(([id, nombre, unidad, costo, merma]) => ({id, nombre, unidad, costo, merma}));
+  const R = [
+    ['r1', 'Lomo saltado', 38, 420, [['lomo', .2], ['cebolla', .08], ['tomate', .08], ['ajiam', .015], ['papa', .25], ['arroz', .15]]],
+    ['r2', 'Ceviche clásico', 38, 380, [['pescado', .18], ['limon', .08], ['cebolla', .06], ['ajiam', .01], ['camote', .12], ['choclo', .5]]],
+    ['r3', 'Ají de gallina', 28, 300, [['gallina', .18], ['ajiam', .05], ['leche', .25], ['pan', .04], ['cebolla', .05], ['papa', .15], ['arroz', .15]]],
+    ['r4', 'Chicha morada (vaso)', 6, 650, [['maiz', .04], ['pina', .05], ['azucar', .03], ['limon', .01]]],
+  ];
+  const recetas = R.map(([id, nombre, precio, ventas, items]) => ({id, nombre, precio, ventas, items: items.map(([insumoId, qty]) => ({id: uid(), insumoId, qty}))}));
+  S = {meta: 30, incIGV: true, insumos, recetas, inv: {}, sel: recetas[0].id};
+  // Inventario de ejemplo: consumo real = teórico × factor (pérdidas en lomo, pescado y limón)
+  const factor = {lomo: 1.07, pescado: 1.05, limon: 1.09, cebolla: 1.03, papa: 1.04, ajiam: 1.02, gallina: 1.02, arroz: 0.99, pina: 0.98};
+  const teo = consumoTeorico();
+  insumos.forEach(i => {
+    const t = teo[i.id] || 0, real = t * (factor[i.id] || 1);
+    const ini = r2(t * 0.3 + 1), fin = r2(t * 0.25 + 1);
+    S.inv[i.id] = {ini, comp: r2(real - ini + fin), fin};
+  });
+}
+
+/* ---------- Supabase: conexión, carga y guardado ---------- */
+const CFG = window.APP_CONFIG || {};
+let sb = null, started = false;
+const chk = res => { if (res.error) throw res.error; return res.data; };
+const setStatus = (t, cls) => { const el = $('#syncStatus'); el.textContent = t; el.className = 'sync ' + (cls || ''); };
+
+const rowIns = (i, k) => ({id: i.id, nombre: i.nombre || '', unidad: i.unidad || '', costo: num(i.costo), merma: num(i.merma), orden: k});
+const rowRec = (r, k) => ({id: r.id, nombre: r.nombre || '', precio: num(r.precio), ventas: num(r.ventas), orden: k});
+const rowInv = id => { const v = S.inv[id] || {}; return {insumo_id: id, inicial: num(v.ini), compras: num(v.comp), final: num(v.fin)}; };
+const rowsItems = r => r.items.map((it, k) => ({id: it.id, receta_id: r.id, insumo_id: it.insumoId || null, cantidad: num(it.qty), orden: k}));
+
+// Cola: todas las operaciones con la base se ejecutan en orden
+let queue = Promise.resolve(), pendingOps = 0, flushTimer = null;
+const dirty = {cfg: false, ins: new Set(), rec: new Set(), inv: new Set(), items: new Set()};
+const hasDirty = () => dirty.cfg || dirty.ins.size || dirty.rec.size || dirty.inv.size || dirty.items.size;
+function enqueue(fn) {
+  pendingOps++;
+  queue = queue.then(fn).catch(e => { console.error(e); setStatus('Error al guardar: ' + (e.message || e), 'err'); })
+    .finally(() => { pendingOps--; if (!pendingOps && !hasDirty() && !$('#syncStatus').classList.contains('err')) setStatus('Guardado ✓', 'ok'); });
+  return queue;
+}
+function markDirty(kind, id) {
+  if (kind === 'cfg') dirty.cfg = true; else dirty[kind].add(id);
+  setStatus('Cambios sin guardar…', 'pend');
+  clearTimeout(flushTimer); flushTimer = setTimeout(flush, 700);
+}
+function flush() {
+  clearTimeout(flushTimer);
+  if (!hasDirty()) return queue;
+  const d = {cfg: dirty.cfg, ins: [...dirty.ins], rec: [...dirty.rec], inv: [...dirty.inv], items: [...dirty.items]};
+  dirty.cfg = false; ['ins', 'rec', 'inv', 'items'].forEach(k => dirty[k].clear());
+  return enqueue(async () => {
+    setStatus('Guardando…', 'pend');
+    try {
+      if (d.cfg) chk(await sb.from('config').upsert({id: 1, meta: num(S.meta), inc_igv: !!S.incIGV}));
+      const insRows = S.insumos.map(rowIns).filter(x => d.ins.includes(x.id));
+      if (insRows.length) chk(await sb.from('insumos').upsert(insRows));
+      const recRows = S.recetas.map(rowRec).filter(x => d.rec.includes(x.id));
+      if (recRows.length) chk(await sb.from('recetas').upsert(recRows));
+      const invRows = d.inv.filter(id => ins(id)).map(rowInv);
+      if (invRows.length) chk(await sb.from('inventario').upsert(invRows));
+      const itRows = S.recetas.filter(r => d.items.includes(r.id)).flatMap(rowsItems);
+      if (itRows.length) chk(await sb.from('receta_items').upsert(itRows));
+      $('#syncStatus').classList.remove('err');
+    } catch (e) {
+      // devolver lo pendiente y reintentar
+      if (d.cfg) dirty.cfg = true; ['ins', 'rec', 'inv', 'items'].forEach(k => d[k].forEach(x => dirty[k].add(x)));
+      clearTimeout(flushTimer); flushTimer = setTimeout(flush, 5000);
+      throw e;
+    }
+  });
+}
+const dbDelete = (table, col, id) => enqueue(async () => { setStatus('Guardando…', 'pend'); chk(await sb.from(table).delete().eq(col, id)); });
+
+// Reemplaza TODO el contenido de la base por el estado actual (datos de ejemplo / importar)
+function pushAll() {
+  clearTimeout(flushTimer); dirty.cfg = false; ['ins', 'rec', 'inv', 'items'].forEach(k => dirty[k].clear());
+  return enqueue(async () => {
+    setStatus('Guardando…', 'pend');
+    chk(await sb.from('recetas').delete().not('id', 'is', null));
+    chk(await sb.from('insumos').delete().not('id', 'is', null));
+    chk(await sb.from('config').upsert({id: 1, meta: num(S.meta), inc_igv: !!S.incIGV}));
+    if (S.insumos.length) {
+      chk(await sb.from('insumos').insert(S.insumos.map(rowIns)));
+      chk(await sb.from('inventario').insert(S.insumos.map(i => rowInv(i.id))));
+    }
+    if (S.recetas.length) chk(await sb.from('recetas').insert(S.recetas.map(rowRec)));
+    const it = S.recetas.flatMap(rowsItems);
+    if (it.length) chk(await sb.from('receta_items').insert(it));
+    $('#syncStatus').classList.remove('err');
+  });
+}
+
+async function loadAll() {
+  const [c, i, r, it, inv] = await Promise.all([
+    sb.from('config').select('*').eq('id', 1),
+    sb.from('insumos').select('*').order('orden'),
+    sb.from('recetas').select('*').order('orden'),
+    sb.from('receta_items').select('*').order('orden'),
+    sb.from('inventario').select('*'),
+  ]).then(rs => rs.map(chk));
+  if (!i.length && !r.length) { seed(); await pushAll(); return; }   // base vacía: carga ejemplo
+  const prevSel = S && S.sel;
+  S = {
+    meta: c[0]?.meta ?? 30, incIGV: c[0]?.inc_igv ?? true,
+    insumos: i.map(x => ({id: x.id, nombre: x.nombre, unidad: x.unidad, costo: x.costo, merma: x.merma})),
+    recetas: r.map(x => ({id: x.id, nombre: x.nombre, precio: x.precio, ventas: x.ventas,
+      items: it.filter(y => y.receta_id === x.id).map(y => ({id: y.id, insumoId: y.insumo_id || '', qty: y.cantidad}))})),
+    inv: {}, sel: prevSel,
+  };
+  inv.forEach(v => S.inv[v.insumo_id] = {ini: v.inicial, comp: v.compras, fin: v.final});
+}
+
+/* ---------- cálculos ---------- */
+const ins = id => S.insumos.find(x => x.id === id);
+const factorMerma = i => 1 / (1 - Math.min(Math.max(num(i.merma), 0), 99) / 100);
+const costoAprov = i => num(i.costo) * factorMerma(i);
+const neto = p => S.incIGV ? num(p) / (1 + IGV) : num(p);
+const conIGV = n => S.incIGV ? n * (1 + IGV) : n;
+const meta = () => num(S.meta) / 100;
+
+function consumoTeorico() {
+  const t = {};
+  S.recetas.forEach(r => r.items.forEach(it => {
+    const i = ins(it.insumoId); if (!i) return;
+    t[i.id] = (t[i.id] || 0) + num(r.ventas) * num(it.qty) * factorMerma(i);
+  }));
+  return t;
+}
+
+function calcReceta(r) {
+  let costo = 0;
+  const lines = r.items.map(it => {
+    const i = ins(it.insumoId), cu = i ? costoAprov(i) : 0, c = num(it.qty) * cu;
+    costo += c; return {it, i, cu, c};
+  });
+  lines.forEach(l => l.pct = costo ? l.c / costo : 0);
+  const pn = neto(r.precio), m = meta();
+  return {lines, costo, pn, fc: pn > 0 ? costo / pn : null, margen: pn - costo,
+          margenPct: pn > 0 ? (pn - costo) / pn : null, sug: m > 0 ? conIGV(costo / m) : 0};
+}
+
+function estado(fc) {
+  if (fc == null) return ['Sin precio', 'gray'];
+  const m = meta();
+  if (fc <= m) return ['En meta', 'ok'];
+  if (fc <= m + 0.03) return ['Atención', 'warn'];
+  return ['Fuera de meta', 'bad'];
+}
+
+function calcAll() {
+  const rec = S.recetas.map(r => {
+    const c = calcReceta(r), u = num(r.ventas);
+    return {r, ...c, u, ventasNetas: u * c.pn, costoTot: u * c.costo};
+  });
+  const ventas = rec.reduce((a, x) => a + x.ventasNetas, 0);
+  const costoTeo = rec.reduce((a, x) => a + x.costoTot, 0);
+  const teo = consumoTeorico();
+  const inv = S.insumos.map(i => {
+    const v = S.inv[i.id] || {}, real = num(v.ini) + num(v.comp) - num(v.fin);
+    const t = teo[i.id] || 0, c = num(i.costo), dif = real - t;
+    return {i, real, teo: t, dif, realS: real * c, teoS: t * c, difS: dif * c};
+  });
+  const costoReal = inv.reduce((a, x) => a + x.realS, 0);
+  const costoTeoInv = inv.reduce((a, x) => a + x.teoS, 0);
+  const fcTeo = ventas ? costoTeo / ventas : null, fcReal = ventas ? costoReal / ventas : null;
+  return {rec, ventas, costoTeo, costoTeoInv, costoReal, inv, fcTeo, fcReal,
+          desv: fcTeo != null ? fcReal - fcTeo : 0, margenReal: ventas - costoReal};
+}
+
+/* ---------- render estructural (solo al agregar/eliminar/cambiar receta) ---------- */
+function renderAll() {
+  $('#cfgMeta').value = S.meta;
+  $('#cfgIGV').checked = !!S.incIGV;
+  renderInsumos(); renderRecetas(); renderVentas(); refresh();
+}
+
+function renderInsumos() {
+  $('#insBody').innerHTML = S.insumos.map(i => `<tr>
+    <td><input data-b="ins.${i.id}.nombre" value="${esc(i.nombre)}"></td>
+    <td style="width:90px"><input data-b="ins.${i.id}.unidad" value="${esc(i.unidad)}"></td>
+    <td class="n" style="width:130px"><input type="number" step="any" min="0" data-b="ins.${i.id}.costo" value="${esc(i.costo)}"></td>
+    <td class="n" style="width:100px"><input type="number" step="any" min="0" max="99" data-b="ins.${i.id}.merma" value="${esc(i.merma)}"></td>
+    <td class="n" data-o="aprov-${i.id}"></td>
+    <td class="n" data-o="uso-${i.id}"></td>
+    <td style="width:36px"><button class="x" title="Eliminar" data-act="delIns" data-id="${i.id}">×</button></td>
+  </tr>`).join('') || `<tr><td colspan="7" class="empty">No hay insumos. Agrega el primero.</td></tr>`;
+}
+
+function insOptions(selId) {
+  return `<option value="">— Elegir insumo —</option>` + S.insumos.map(i =>
+    `<option value="${i.id}" data-nins="${i.id}" ${i.id === selId ? 'selected' : ''}>${esc(i.nombre)}</option>`).join('');
+}
+
+function renderRecetas() {
+  if (!S.recetas.find(r => r.id === S.sel)) S.sel = S.recetas[0]?.id || null;
+  $('#recSel').innerHTML = S.recetas.map(r => `<option value="${r.id}" data-nrec="${r.id}" ${r.id === S.sel ? 'selected' : ''}>${esc(r.nombre)}</option>`).join('')
+    || '<option>(sin recetas)</option>';
+  $('#recDel').disabled = !S.sel;
+  const r = S.recetas.find(x => x.id === S.sel);
+  if (!r) { $('#recWrap').innerHTML = `<div class="card empty">No hay recetas. Crea una con “+ Nueva receta”.</div>`; return; }
+  $('#recWrap').innerHTML = `<div class="grid2">
+    <div class="card">
+      <h2>Ficha técnica por porción</h2>
+      <div class="row" style="margin-bottom:14px">
+        <label class="field">Nombre del plato<input data-b="rec.${r.id}.nombre" value="${esc(r.nombre)}"></label>
+        <label class="field" style="max-width:220px"><span>Precio de venta S/ <span data-o="lblIGV"></span></span><input type="number" step="any" min="0" data-b="rec.${r.id}.precio" value="${esc(r.precio)}"></label>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Ingrediente</th><th class="n">Cantidad</th><th>Und.</th><th class="n">Costo aprov./und</th><th class="n">Costo</th><th class="n">% del costo</th><th></th></tr></thead>
+        <tbody>${r.items.map((it, k) => `<tr>
+          <td style="min-width:170px"><select data-b="item.${r.id}.${k}.insumoId">${insOptions(it.insumoId)}</select></td>
+          <td class="n" style="width:110px"><input type="number" step="any" min="0" data-b="item.${r.id}.${k}.qty" value="${esc(it.qty)}"></td>
+          <td class="unit" data-o="ln-${k}-u"></td>
+          <td class="n" data-o="ln-${k}-cu"></td>
+          <td class="n" data-o="ln-${k}-c"></td>
+          <td class="n" style="width:110px"><span data-o="ln-${k}-p"></span><div class="pbar"><i data-o="ln-${k}-b"></i></div></td>
+          <td style="width:36px"><button class="x" title="Quitar" data-act="delItem" data-k="${k}">×</button></td>
+        </tr>`).join('') || `<tr><td colspan="7" class="empty">Sin ingredientes.</td></tr>`}</tbody>
+        <tfoot><tr><td colspan="4">Costo por porción</td><td class="n" data-o="rcCostoT"></td><td class="n">100%</td><td></td></tr></tfoot>
+      </table></div>
+      <div style="margin-top:12px"><button class="btn sec" data-act="addItem">+ Agregar ingrediente</button></div>
+    </div>
+    <div class="card">
+      <h2>Resultado</h2>
+      <div class="res">
+        <div class="it"><span>Costo por porción</span><b data-o="rcCosto"></b></div>
+        <div class="it"><span>Precio neto (sin IGV)</span><b data-o="rcNeto"></b></div>
+        <div class="it big" id="rcBox"><span>Food cost</span><b><span data-o="rcFC"></span> <span data-o="rcTag"></span></b></div>
+        <div class="it"><span>Margen bruto</span><b data-o="rcMargen"></b></div>
+        <div class="it"><span>Precio sugerido para meta <span data-o="rcMeta"></span></span><b data-o="rcSug"></b></div>
+      </div>
+      <p class="note" data-o="rcNota"></p>
+    </div>
+  </div>`;
+}
+
+function renderVentas() {
+  $('#venBody').innerHTML = S.recetas.map(r => `<tr>
+    <td data-nrec="${r.id}">${esc(r.nombre)}</td>
+    <td class="n" data-o="vp-${r.id}"></td>
+    <td class="n" style="width:140px"><input type="number" step="1" min="0" data-b="rec.${r.id}.ventas" value="${esc(r.ventas)}"></td>
+    <td class="n" data-o="vn-${r.id}"></td>
+    <td class="n" data-o="vc-${r.id}"></td>
+  </tr>`).join('') || `<tr><td colspan="5" class="empty">No hay platos.</td></tr>`;
+  $('#invBody').innerHTML = S.insumos.map(i => {
+    const v = S.inv[i.id] || (S.inv[i.id] = {ini: 0, comp: 0, fin: 0});
+    const inp = f => `<td class="n" style="width:105px"><input type="number" step="any" min="0" data-b="inv.${i.id}.${f}" value="${esc(v[f])}"></td>`;
+    return `<tr><td data-nins="${i.id}">${esc(i.nombre)}</td><td class="unit" data-uins="${i.id}">${esc(i.unidad)}</td>
+      ${inp('ini')}${inp('comp')}${inp('fin')}
+      <td class="n" data-o="ir-${i.id}"></td><td class="n" data-o="it-${i.id}"></td>
+      <td class="n" data-o="idu-${i.id}"></td><td class="n" data-o="ids-${i.id}"></td><td data-o="ie-${i.id}"></td></tr>`;
+  }).join('') || `<tr><td colspan="10" class="empty">No hay insumos.</td></tr>`;
+}
+
+/* ---------- actualización de valores (sin tocar inputs → no se pierde el foco) ---------- */
+const out = (k, v, html) => $$(`[data-o="${k}"]`).forEach(el => html ? el.innerHTML = v : el.textContent = v);
+const tag = ([t, c]) => `<span class="tag ${c}">${t}</span>`;
+
+function refresh() {
+  const M = calcAll();
+  // nombres y unidades en otras pestañas
+  S.insumos.forEach(i => {
+    $$(`[data-nins="${i.id}"]`).forEach(el => el.textContent = i.nombre);
+    $$(`[data-uins="${i.id}"]`).forEach(el => el.textContent = i.unidad);
+  });
+  S.recetas.forEach(r => $$(`[data-nrec="${r.id}"]`).forEach(el => el.textContent = r.nombre));
+
+  // Insumos
+  S.insumos.forEach(i => {
+    out('aprov-' + i.id, fS(costoAprov(i)) + ' / ' + (i.unidad || 'und'));
+    const n = S.recetas.filter(r => r.items.some(it => it.insumoId === i.id)).length;
+    out('uso-' + i.id, n ? `<span class="tag blue">${n} receta${n > 1 ? 's' : ''}</span>` : '<span class="tag gray">Sin uso</span>', true);
+  });
+
+  // Receta seleccionada
+  const x = M.rec.find(e => e.r.id === S.sel);
+  if (x) {
+    x.lines.forEach((l, k) => {
+      out(`ln-${k}-u`, l.i ? l.i.unidad : '');
+      out(`ln-${k}-cu`, fS(l.cu));
+      out(`ln-${k}-c`, fS(l.c));
+      out(`ln-${k}-p`, fP(l.pct));
+      $$(`[data-o="ln-${k}-b"]`).forEach(el => el.style.width = (l.pct * 100).toFixed(1) + '%');
+    });
+    out('rcCostoT', fS(x.costo)); out('rcCosto', fS(x.costo)); out('rcNeto', fS(x.pn));
+    out('rcFC', fP(x.fc)); const bx = $('#rcBox'); if (bx) bx.style.background = {ok: 'var(--g-bg)', warn: 'var(--y-bg)', bad: 'var(--r-bg)', gray: '#f7f9f7'}[estado(x.fc)[1]]; out('rcTag', tag(estado(x.fc)), true);
+    out('rcMargen', fS(x.margen) + (x.margenPct != null ? ` (${fP(x.margenPct)})` : ''));
+    out('rcMeta', `(${fP(meta())})`); out('rcSug', fS(x.sug));
+    out('lblIGV', S.incIGV ? '(con IGV)' : '(sin IGV)');
+    out('rcNota', S.incIGV ? 'El precio de venta y el sugerido incluyen IGV 11%. El food cost se calcula sobre el precio neto.' : 'Precios sin IGV.');
+  }
+
+  // Ventas
+  let tu = 0;
+  M.rec.forEach(e => {
+    tu += e.u;
+    out('vp-' + e.r.id, fS(num(e.r.precio))); out('vn-' + e.r.id, fS(e.ventasNetas)); out('vc-' + e.r.id, fS(e.costoTot));
+  });
+  out('venU', tu.toLocaleString('es-PE')); out('venN', fS(M.ventas)); out('venC', fS(M.costoTeo));
+  M.inv.forEach(e => {
+    const id = e.i.id, TOL = 0.05; // tolerancia de redondeo: S/ 0.05
+    const st = e.difS > TOL ? 'bad' : e.difS < -TOL ? 'sob' : 'ok', cls = st === 'bad' ? 'neg' : st === 'sob' ? 'pos' : '';
+    out('ir-' + id, fQ(e.real)); out('it-' + id, fQ(e.teo));
+    out('idu-' + id, `<span class="${cls}">${e.dif > 0 ? '+' : ''}${fQ(e.dif)}</span>`, true);
+    out('ids-' + id, `<span class="${cls}">${e.difS > 0 ? '+' : ''}${fS(e.difS)}</span>`, true);
+    out('ie-' + id, st === 'bad' ? tag(['Pérdida', 'bad']) : st === 'sob' ? tag(['Sobrante', 'blue']) : tag(['OK', 'ok']), true);
+  });
+  const td = M.costoReal - M.costoTeoInv;
+  out('invR', fS(M.costoReal)); out('invT', fS(M.costoTeoInv));
+  out('invD', `<span class="${td > 0 ? 'neg' : 'pos'}">${td > 0 ? '+' : ''}${fS(td)}</span>`, true);
+
+  renderResumen(M);
+}
+
+function renderResumen(M) {
+  const m = meta();
+  const top = M.inv.filter(e => e.difS > 0.05).sort((a, b) => b.difS - a.difS).slice(0, 3);
+  const topHTML = top.length ? `<ol>${top.map(e => `<li><b>${esc(e.i.nombre)}</b>: ${fS(e.difS)} (+${fQ(e.dif)} ${esc(e.i.unidad)}, ${e.teo ? fP(e.dif / e.teo) : '—'} sobre lo teórico)</li>`).join('')}</ol>` : '<div>No hay insumos con pérdida.</div>';
+  const supera = M.ventas > 0 && M.desv > 0.01;
+  const alerta = M.ventas <= 0
+    ? `<div class="alert ok"><b class="t">Sin ventas registradas</b>Ingresa las unidades vendidas en “Ventas y consumo real”.</div>`
+    : `<div class="alert ${supera ? 'bad' : 'ok'}"><b class="t">${supera
+        ? `⚠ El consumo real supera al teórico en ${fPts(M.desv)} de food cost (${fS(M.costoReal - M.costoTeo)})`
+        : `✓ Consumo real dentro de tolerancia: ${fPts(M.desv)} vs teórico (límite +1,0 pt)`}</b>
+        Insumos con mayor desvío:${topHTML}</div>`;
+
+  const scale = Math.max(m * 1.6, ...M.rec.map(e => (e.fc || 0) * 1.1), 0.1);
+  const bars = M.rec.map((e, idx) => {
+    const st = estado(e.fc), w = Math.min((e.fc || 0) / scale * 100, 100);
+    return `<div class="cr"><div class="nm" title="${esc(e.r.nombre)}">${esc(e.r.nombre)}</div>
+      <div class="track"><div class="fill ${st[1]}" style="width:${w}%"></div>
+      <div class="metaL" style="left:${m / scale * 100}%">${idx === 0 ? `<span>Meta ${fP(m)}</span>` : ''}</div></div>
+      <div class="vl">${fP(e.fc)}</div></div>`;
+  }).join('');
+
+  const rows = M.rec.map(e => `<tr>
+    <td><b>${esc(e.r.nombre)}</b></td><td class="n">${e.u.toLocaleString('es-PE')}</td>
+    <td class="n">${fS(num(e.r.precio))}</td><td class="n">${fS(e.pn)}</td><td class="n">${fS(e.costo)}</td>
+    <td class="n"><b>${fP(e.fc)}</b></td><td class="n">${fS(e.margen)}</td>
+    <td class="n">${fS(e.ventasNetas)}</td><td class="n">${fS(e.u * e.margen)}</td>
+    <td class="n"><b>${fS(e.sug)}</b></td><td>${tag(estado(e.fc))}</td></tr>`).join('');
+
+  const kpiCls = (fc) => fc == null ? '' : `style="color:${fc <= m ? 'var(--g)' : fc <= m + .03 ? 'var(--y)' : 'var(--r)'}"`;
+  $('#resumen').innerHTML = `${alerta}
+  <div class="kpis">
+    <div class="kpi"><div class="l">Ventas netas</div><div class="v">${fS(M.ventas)}</div><div class="s">${S.incIGV ? 'Sin IGV' : 'Precios sin IGV'}</div></div>
+    <div class="kpi"><div class="l">FC teórico</div><div class="v" ${kpiCls(M.fcTeo)}>${fP(M.fcTeo)}</div><div class="s">Costo ${fS(M.costoTeo)} · meta ${fP(m)}</div></div>
+    <div class="kpi"><div class="l">FC real</div><div class="v" ${kpiCls(M.fcReal)}>${fP(M.fcReal)}</div><div class="s">Consumo ${fS(M.costoReal)}</div></div>
+    <div class="kpi"><div class="l">Desviación real vs teórico</div><div class="v" style="color:${M.desv > 0.01 ? 'var(--r)' : 'var(--g)'}">${M.ventas ? fPts(M.desv) : '—'}</div><div class="s">${fS(M.costoReal - M.costoTeo)}</div></div>
+    <div class="kpi"><div class="l">Margen bruto real</div><div class="v">${fS(M.margenReal)}</div><div class="s">${M.ventas ? fP(M.margenReal / M.ventas) + ' de ventas netas' : '—'}</div></div>
+  </div>
+  <div class="card"><h2>Food cost teórico por plato</h2>
+    <div class="chart" style="padding-top:12px">${bars || '<div class="empty">Sin platos.</div>'}</div>
+    <div class="legend"><span><i style="background:#3aa36a"></i>En meta (≤ ${fP(m)})</span><span><i style="background:#e0a526"></i>Atención (hasta +3 pts)</span><span><i style="background:#d24b3e"></i>Fuera de meta (&gt; +3 pts)</span><span><i style="border-left:2px dashed #1f2a24;width:0;border-radius:0"></i>Meta</span></div>
+  </div>
+  <div class="card"><h2>Detalle por plato</h2><div class="tbl"><table>
+    <thead><tr><th>Plato</th><th class="n">Unid.</th><th class="n">Precio venta</th><th class="n">Precio neto</th><th class="n">Costo porción</th><th class="n">FC %</th><th class="n">Margen unit.</th><th class="n">Ventas netas</th><th class="n">Margen total</th><th class="n">Precio sugerido</th><th>Estado</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="11" class="empty">Sin platos.</td></tr>'}</tbody>
+    <tfoot><tr><td>Total</td><td class="n">${M.rec.reduce((a, e) => a + e.u, 0).toLocaleString('es-PE')}</td><td></td><td></td><td></td><td class="n">${fP(M.fcTeo)}</td><td></td><td class="n">${fS(M.ventas)}</td><td class="n">${fS(M.ventas - M.costoTeo)}</td><td></td><td></td></tr></tfoot>
+  </table></div>
+  <p class="note">Precio sugerido = costo por porción ÷ meta de food cost${S.incIGV ? ' × 1,11 (incluye IGV)' : ''}. FC por plato calculado con receta y merma (teórico).</p></div>`;
+}
+
+/* ---------- eventos ---------- */
+function onEdit(e) {
+  const b = e.target.dataset && e.target.dataset.b; if (!b || !S) return;
+  const p = b.split('.'), val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+  if (p[0] === 'cfg') { S[p[1]] = val; markDirty('cfg'); }
+  else if (p[0] === 'ins') { const i = ins(p[1]); if (i) { i[p[2]] = val; markDirty('ins', i.id); } }
+  else if (p[0] === 'rec') { const r = S.recetas.find(x => x.id === p[1]); if (r) { r[p[2]] = val; markDirty('rec', r.id); } }
+  else if (p[0] === 'item') { const r = S.recetas.find(x => x.id === p[1]); if (r && r.items[p[2]]) { r.items[p[2]][p[3]] = val; markDirty('items', r.id); } }
+  else if (p[0] === 'inv') { (S.inv[p[1]] = S.inv[p[1]] || {})[p[2]] = val; markDirty('inv', p[1]); }
+  refresh();
+}
+document.addEventListener('input', onEdit);
+document.addEventListener('change', e => { if (e.target.tagName === 'SELECT' || e.target.type === 'checkbox') onEdit(e); });
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act],[data-tab]'); if (!t) return;
+  if (t.dataset.tab) {
+    $$('.tab').forEach(x => x.classList.toggle('on', x === t));
+    $$('main section').forEach(s => s.classList.toggle('on', s.id === t.dataset.tab));
+    return;
+  }
+  const r = S.recetas.find(x => x.id === S.sel);
+  switch (t.dataset.act) {
+    case 'delIns': {
+      const i = ins(t.dataset.id), afect = S.recetas.filter(rr => rr.items.some(it => it.insumoId === i.id));
+      if (!confirm(`¿Eliminar "${i.nombre}"?` + (afect.length ? `\nTambién se quitará de ${afect.length} receta(s).` : ''))) return;
+      S.insumos = S.insumos.filter(x => x.id !== i.id);
+      S.recetas.forEach(rr => rr.items = rr.items.filter(it => it.insumoId !== i.id));
+      delete S.inv[i.id];
+      flush(); dbDelete('insumos', 'id', i.id);       // la base borra en cascada inventario e ingredientes
+      renderAll(); break;
+    }
+    case 'addItem': r.items.push({id: uid(), insumoId: '', qty: 0}); markDirty('items', r.id); renderRecetas(); refresh(); break;
+    case 'delItem': {
+      const [it] = r.items.splice(+t.dataset.k, 1);
+      flush(); dbDelete('receta_items', 'id', it.id); markDirty('items', r.id);
+      renderRecetas(); renderInsumos(); refresh(); break;
+    }
+  }
+});
+
+$('#addIns').onclick = () => {
+  const id = uid();
+  S.insumos.push({id, nombre: 'Nuevo insumo', unidad: 'kg', costo: 0, merma: 0});
+  S.inv[id] = {ini: 0, comp: 0, fin: 0};
+  markDirty('ins', id); markDirty('inv', id);
+  renderAll();
+  const el = $(`[data-b="ins.${id}.nombre"]`); if (el) { el.focus(); el.select(); }
+};
+$('#recSel').onchange = e => { S.sel = e.target.value; renderRecetas(); refresh(); };
+$('#recNew').onclick = () => {
+  const id = uid();
+  S.recetas.push({id, nombre: 'Nuevo plato', precio: 0, ventas: 0, items: [{id: uid(), insumoId: '', qty: 0}]});
+  S.sel = id; markDirty('rec', id); markDirty('items', id); renderAll();
+  const el = $(`[data-b="rec.${id}.nombre"]`); if (el) { el.focus(); el.select(); }
+};
+$('#recDel').onclick = () => {
+  const r = S.recetas.find(x => x.id === S.sel); if (!r) return;
+  if (!confirm(`¿Eliminar la receta "${r.nombre}"?`)) return;
+  S.recetas = S.recetas.filter(x => x.id !== r.id); S.sel = S.recetas[0]?.id || null;
+  flush(); dbDelete('recetas', 'id', r.id); renderAll();
+};
+$('#btnReset').onclick = async () => {
+  if (!confirm('Esto REEMPLAZA todos los datos guardados en la base por los datos de ejemplo. ¿Continuar?')) return;
+  seed(); renderAll(); await pushAll();
+};
+$('#btnReload').onclick = async () => { await flush(); await queue; await reload(); };
+$('#btnExport').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], {type: 'application/json'}));
+  a.download = 'food-cost-' + new Date().toISOString().slice(0, 10) + '.json'; a.click();
+};
+$('#btnImport').onclick = () => $('#fileImport').click();
+$('#fileImport').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(async txt => {
+    e.target.value = '';
+    let d; try { d = JSON.parse(txt); if (!d.insumos || !d.recetas) throw 0; } catch (err) { alert('El archivo no es válido.'); return; }
+    if (!confirm('Esto REEMPLAZA todos los datos guardados en la base por los del archivo. ¿Continuar?')) return;
+    // compatibilidad con exportaciones de la versión local: asegurar ids únicos
+    const map = {};
+    d.insumos.forEach(i => { const n = uid(); map[i.id] = n; i.id = n; });
+    const inv = {}; Object.keys(d.inv || {}).forEach(k => { if (map[k]) inv[map[k]] = d.inv[k]; });
+    d.inv = inv;
+    d.recetas.forEach(r => { r.id = uid(); r.items = (r.items || []).map(it => ({id: uid(), insumoId: map[it.insumoId] || '', qty: it.qty})); });
+    d.sel = d.recetas[0]?.id || null;
+    S = d; renderAll(); await pushAll();
+  });
+};
+window.addEventListener('beforeunload', e => { if (hasDirty() || pendingOps) { flush(); e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- inicio de sesión ---------- */
+const showLogin = () => { $('#login').style.display = 'flex'; };
+async function reload() {
+  $('#loading').style.display = 'flex';
+  try { await loadAll(); renderAll(); setStatus('Guardado ✓', 'ok'); }
+  catch (e) { console.error(e); setStatus('Error al cargar', 'err'); alert('No se pudieron cargar los datos: ' + (e.message || e)); }
+  $('#loading').style.display = 'none';
+}
+async function start(session) {
+  if (started) return; started = true;
+  $('#login').style.display = 'none';
+  $('#btnLogout').textContent = 'Salir';
+  $('#btnLogout').title = session?.user?.email || '';
+  await reload();
+}
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault();
+  $('#loginErr').textContent = ''; $('#lgBtn').disabled = true;
+  const {data, error} = await sb.auth.signInWithPassword({email: $('#lgEmail').value.trim(), password: $('#lgPass').value});
+  $('#lgBtn').disabled = false;
+  if (error) { $('#loginErr').textContent = 'Correo o contraseña incorrectos.'; return; }
+  start(data.session);
+};
+$('#btnLogout').onclick = async () => {
+  await flush(); await queue;
+  await sb.auth.signOut(); location.reload();
+};
+
+(async function init() {
+  if (!window.supabase || !CFG.SUPABASE_URL || !CFG.SUPABASE_KEY) {
+    document.body.innerHTML = '<div class="card" style="max-width:520px;margin:60px auto"><h2>Falta configurar Supabase</h2><p>No se encontró <code>config.js</code> con <code>SUPABASE_URL</code> y <code>SUPABASE_KEY</code>. Revisa las variables de entorno en Render.</p></div>';
+    return;
+  }
+  sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY);
+  sb.auth.onAuthStateChange((ev) => { if (ev === 'SIGNED_OUT') { started = false; showLogin(); } });
+  const {data: {session}} = await sb.auth.getSession();
+  if (session) start(session); else showLogin();
+})();
+</script>
+</body>
+</html>
