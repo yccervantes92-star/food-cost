@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#4a2a12">
+<title>Control de Calidad · Taller</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f5f2;--card:#fff;--ink:#21160e;--mute:#7a6a5c;--line:#e6dfd6;--crust:#4a2a12;--gold:#e0a526;--ok:#1f8a4c;--okbg:#e3f4ea;--no:#c8322b;--nobg:#fbe6e4;--obs:#b7790b;--obsbg:#fdf1d8;--na:#6f6f6f}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.45 Figtree,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:var(--crust);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.top{position:sticky;top:0;z-index:5}
+header h1{font-size:17px;margin:0;font-weight:800;flex:1}
+header small{opacity:.8;font-size:13px}
+.hbtn{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer}
+nav{display:flex;background:var(--crust);padding:0 8px;gap:4px;overflow-x:auto;border-top:1px solid rgba(255,255,255,.12)}
+@media(max-width:460px){header small{display:none}nav button{font-size:14px;padding:10px 8px}}
+nav button{flex:1 0 auto;background:none;border:0;color:#e9d8c6;padding:10px 12px;font-weight:700;font-size:15px;border-bottom:3px solid transparent;cursor:pointer}
+nav button.on{color:#fff;border-color:var(--gold)}
+main{max-width:860px;margin:0 auto;padding:16px 14px 120px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:20px;margin:0 0 12px}
+h3{font-size:16px;margin:0 0 10px;color:var(--mute);font-weight:700}
+label.l{display:block;font-size:13px;color:var(--mute);font-weight:700;margin:0 0 6px}
+input[type=text],input[type=email],input[type=password],input[type=number],input[type=date],select,textarea{width:100%;min-height:46px;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;font-size:16px}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:3px solid rgba(224,165,38,.45);outline-offset:1px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:8px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-weight:600;cursor:pointer;font-size:15px}
+.chip.on{background:var(--crust);border-color:var(--crust);color:#fff}
+.plist{display:grid;gap:6px;max-height:320px;overflow:auto;margin-top:8px}
+.pitem{text-align:left;min-height:46px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-weight:600;font-size:15px}
+.pitem.on{border-color:var(--gold);background:#fff7e3}
+.sel{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;background:#fff7e3;border:1.5px solid var(--gold);font-weight:700}
+.sel span{flex:1}
+.crit{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.crit:first-of-type{border-top:0}
+.crit .n{flex:1;font-weight:600}
+.seg{display:flex;gap:6px}
+.seg button{width:52px;height:46px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:20px;font-weight:800;cursor:pointer}
+.seg .na{font-size:13px}
+.seg .ok.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg .no.on{background:var(--no);border-color:var(--no);color:#fff}
+.seg .na.on{background:var(--na);border-color:var(--na);color:#fff}
+.btn{min-height:48px;padding:10px 18px;border-radius:12px;border:0;background:var(--crust);color:#fff;font-weight:800;font-size:16px;cursor:pointer}
+.btn.sec{background:#fff;color:var(--crust);border:1.5px solid var(--crust)}
+.btn.gold{background:var(--gold);color:var(--ink)}
+.btn.danger{background:#fff;color:var(--no);border:1.5px solid var(--no)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sm{min-height:38px;padding:6px 12px;font-size:14px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center;z-index:6}
+.bar .st{flex:1;font-weight:700;font-size:14px}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap}
+.b-APROBADO{background:var(--okbg);color:var(--ok)}.b-OBSERVADO{background:var(--obsbg);color:var(--obs)}.b-RECHAZADO{background:var(--nobg);color:var(--no)}
+.alert{padding:12px;border-radius:10px;background:var(--nobg);color:var(--no);font-weight:600;margin-bottom:12px}
+.hint{font-size:13px;color:var(--mute)}
+.photo{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.photo img{width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.reg{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.reg:first-child{border-top:0}
+.reg b{font-size:15px}.reg .m{font-size:13px;color:var(--mute);grid-column:1/-1}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+.kpi .v{font-size:clamp(24px,6vw,32px);font-weight:800;line-height:1.1}
+.kpi .k{font-size:13px;color:var(--mute);font-weight:600}
+.hb{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr) 58px;gap:8px;align-items:center;padding:6px 0;font-size:14px}
+.hb .t{background:#efe9e2;border-radius:6px;height:14px;overflow:hidden}
+.hb .f{height:100%;background:var(--ok)}
+.hb .f.r{background:var(--no)}
+.hb .p{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.modal{position:fixed;inset:0;background:rgba(20,12,6,.55);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.modal .in{background:#fff;width:100%;max-width:640px;max-height:90vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px}
+@media(min-width:700px){.modal{align-items:center}.modal .in{border-radius:18px}}
+.toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:700;z-index:30;max-width:90vw}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+.mx{overflow-x:auto}.mx td,.mx th{text-align:center;white-space:nowrap}.mx td:first-child,.mx th:first-child{text-align:left;position:sticky;left:0;background:#fff}
+.mx input{width:22px;height:22px}
+.login{max-width:380px;margin:8vh auto;padding:0 16px}
+.hide{display:none!important}
+.flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<div id="app"><div class="login"><p class="hint">Cargando…</p></div></div>
+<script>
+{
+const CFG=window.APP_CONFIG||{};
+const SUPABASE_URL=CFG.SUPABASE_URL;
+const SUPABASE_KEY=CFG.SUPABASE_KEY;
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hoy=()=>new Date().toLocaleDateString('en-CA',{timeZone:'America/Lima'});
+const ls={get:(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const TURNOS=[['AM','AM'],['PM','PM'],['AMANECIDA','Amanecida']];
+const ACC=[['LIBERAR','Liberar con observación'],['REPROCESAR','Reprocesar'],['MERMA','Merma']];
+const fmtF=f=>{const[y,m,d]=f.split('-');return `${d}/${m}/${y}`};
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+function errMsg(e){return (e&&(e.message||e.error_description))||'Error inesperado'}
+
+let S={user:null,perfil:null,tab:'registrar',fam:[],cri:[],pro:[],fc:[],
+  f:{fecha:hoy(),turno:ls.get('qc_turno','AM'),fam:null,prod:null,q:'',tanda:1,cantidad:'',items:{},accion:null,obs:'',foto:null,fotoUrl:null},
+  h:{desde:hoy(),hasta:hoy(),turno:'',fam:'',res:''},r:{desde:'',hasta:hoy()},saving:false,cfgFam:null};
+{const d=new Date();d.setDate(d.getDate()-29);S.r.desde=d.toLocaleDateString('en-CA',{timeZone:'America/Lima'});}
+
+/* ---------- auth ---------- */
+async function init(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session) return renderLogin();
+  S.user=session.user;
+  const {data:p}=await sb.from('qc_perfiles').select('*').eq('user_id',S.user.id).maybeSingle();
+  if(!p||!p.activo) return renderSinAcceso();
+  S.perfil=p; await loadCatalogo(); renderShell();
+}
+function renderLogin(msg){
+  $('#app').innerHTML=`<div class="login"><div class="card">
+  <h2>Control de calidad · Taller</h2><p class="hint">Ingresa con tu usuario de supervisor.</p>
+  ${msg?`<div class="alert">${esc(msg)}</div>`:''}
+  <form id="lf"><label class="l" for="em">Correo</label><input id="em" type="email" autocomplete="username" required>
+  <div style="height:10px"></div><label class="l" for="pw">Contraseña</label><input id="pw" type="password" autocomplete="current-password" required>
+  <div style="height:14px"></div><button class="btn" style="width:100%">Ingresar</button></form></div></div>`;
+  $('#lf').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;
+    const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
+    if(error){renderLogin('Correo o contraseña incorrectos');return}init();};
+}
+function renderSinAcceso(){
+  $('#app').innerHTML=`<div class="login"><div class="card"><h2>Sin acceso</h2><p>Tu usuario (${esc(S.user.email)}) no está habilitado para control de calidad. Pide a administración que te dé de alta.</p><button class="btn sec" id="out">Salir</button></div></div>`;
+  $('#out').onclick=logout;
+}
+async function logout(){await sb.auth.signOut();location.reload()}
+
+async function loadCatalogo(){
+  const [a,b,c,d]=await Promise.all([
+    sb.from('qc_familias').select('*').order('orden'),
+    sb.from('qc_criterios').select('*').order('orden'),
+    sb.from('qc_productos').select('*').order('orden'),
+    sb.from('qc_familia_criterio').select('*').order('orden')]);
+  S.fam=a.data||[];S.cri=b.data||[];S.pro=c.data||[];S.fc=d.data||[];
+}
+const famCrit=fid=>S.fc.filter(x=>x.familia_id===fid).map(x=>S.cri.find(c=>c.id===x.criterio_id)).filter(c=>c&&c.activo).sort((a,b)=>a.orden-b.orden);
+const famName=id=>(S.fam.find(f=>f.id===id)||{}).nombre||'';
+
+/* ---------- shell ---------- */
+function renderShell(){
+  const tabs=[['registrar','Registrar'],['historial','Historial'],['reportes','Reportes']];
+  if(S.perfil.rol==='admin')tabs.push(['config','Configuración']);
+  $('#app').innerHTML=`<div class="top"><header><h1>Control de calidad</h1><small>${esc(S.perfil.nombre)}</small><button class="hbtn" id="out">Salir</button></header>
+  <nav>${tabs.map(([k,v])=>`<button data-t="${k}" class="${S.tab===k?'on':''}">${v}</button>`).join('')}</nav></div><main id="m"></main><div id="bar"></div>`;
+  $('#out').onclick=logout;
+  document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;renderShell()});
+  ({registrar:renderReg,historial:renderHist,reportes:renderRep,config:renderCfg})[S.tab]();
+}
+
+/* ---------- registrar ---------- */
+function regEstado(){
+  const f=S.f;if(!f.prod)return{ok:false,msg:'Elige un producto'};
+  const cs=famCrit(f.fam);const falt=cs.filter(c=>!f.items[c.id]).length;
+  if(falt)return{ok:false,msg:`Faltan ${falt} criterio${falt>1?'s':''}`};
+  const hayNo=cs.some(c=>f.items[c.id]==='NO');
+  if(!hayNo)return{ok:true,res:'APROBADO'};
+  if(!f.accion)return{ok:false,msg:'Indica la acción tomada',res:'NO'};
+  if(!f.obs.trim())return{ok:false,msg:'Escribe la observación',res:'NO'};
+  return{ok:true,res:f.accion==='LIBERAR'?'OBSERVADO':'RECHAZADO'};
+}
+async function sugerirTanda(){
+  const f=S.f;if(!f.prod)return;
+  const {data}=await sb.from('qc_registros').select('tanda').eq('producto_id',f.prod).eq('fecha',f.fecha).eq('turno',f.turno).order('tanda',{ascending:false}).limit(1);
+  f.tanda=(data&&data[0]?data[0].tanda:0)+1;const t=$('#tanda');if(t)t.value=f.tanda;
+}
+function renderReg(){
+  const f=S.f;const m=$('#m');
+  const prods=f.fam?S.pro.filter(p=>p.familia_id===f.fam&&p.activo&&(!f.q||p.nombre.toLowerCase().includes(f.q.toLowerCase()))):[];
+  const prod=S.pro.find(p=>p.id===f.prod);
+  const cs=f.fam?famCrit(f.fam):[];
+  const hayNo=cs.some(c=>f.items[c.id]==='NO');
+  m.innerHTML=`
+  <div class="card"><div class="row">
+    <div><label class="l" for="fecha">Fecha</label><input type="date" id="fecha" value="${esc(f.fecha)}" max="${hoy()}"></div>
+    <div><label class="l">Turno</label><div class="chips" id="turnos">${TURNOS.map(([k,v])=>`<button class="chip ${f.turno===k?'on':''}" data-k="${k}">${v}</button>`).join('')}</div></div>
+  </div></div>
+  <div class="card"><h3>1. Familia</h3><div class="chips" id="fams">${S.fam.filter(x=>x.activo).map(x=>`<button class="chip ${f.fam===x.id?'on':''}" data-id="${x.id}">${esc(x.nombre)}</button>`).join('')}</div></div>
+  ${f.fam?`<div class="card"><h3>2. Producto</h3>
+    ${prod?`<div class="sel"><span>${esc(prod.nombre)}</span><button class="btn sec sm" id="cambiar">Cambiar</button></div>`:
+    `<input type="text" id="q" placeholder="Buscar producto…" value="${esc(f.q)}"><div class="plist">${prods.map(p=>`<button class="pitem" data-id="${p.id}">${esc(p.nombre)}</button>`).join('')||'<p class="hint">Sin productos</p>'}</div>`}
+    ${prod?`<div class="row" style="margin-top:12px;margin-bottom:0"><div><label class="l" for="tanda">N° de tanda</label><input type="number" id="tanda" min="1" inputmode="numeric" value="${f.tanda}"></div>
+    <div><label class="l" for="cant">Cantidad (und.)</label><input type="number" id="cant" min="0" inputmode="decimal" value="${esc(f.cantidad)}" placeholder="Opcional"></div></div>`:''}
+  </div>`:''}
+  ${prod?`<div class="card"><div class="flex" style="justify-content:space-between;margin-bottom:6px"><h3 style="margin:0">3. Criterios</h3><button class="btn gold sm" id="todo">Todo conforme ✔</button></div>
+    ${cs.map(c=>{const v=f.items[c.id];return `<div class="crit"><span class="n">${esc(c.nombre)}</span><div class="seg" data-c="${c.id}">
+      <button class="ok ${v==='OK'?'on':''}" data-v="OK" aria-label="Conforme">✔</button><button class="no ${v==='NO'?'on':''}" data-v="NO" aria-label="No conforme">✘</button><button class="na ${v==='NA'?'on':''}" data-v="NA">N/A</button></div></div>`}).join('')}
+  </div>
+  <div class="card"><h3>4. ${hayNo?'Acción y observaciones':'Observaciones y foto'}</h3>
+    ${hayNo?`<label class="l">Acción tomada *</label><div class="chips" id="acc" style="margin-bottom:12px">${ACC.map(([k,v])=>`<button class="chip ${f.accion===k?'on':''}" data-k="${k}">${v}</button>`).join('')}</div>`:''}
+    <label class="l" for="obs">Observaciones ${hayNo?'*':'(opcional)'}</label><textarea id="obs" placeholder="${hayNo?'¿Qué falló y por qué?':''}">${esc(f.obs)}</textarea>
+    <div style="height:12px"></div><label class="l">Foto (opcional)</label>
+    <div class="photo">${f.fotoUrl?`<img src="${f.fotoUrl}" alt="Foto adjunta"><button class="btn danger sm" id="qfoto">Quitar</button>`:''}
+    <span class="btn sec sm filebtn">${f.fotoUrl?'Cambiar foto':'📷 Tomar / adjuntar foto'}<input type="file" id="foto" accept="image/*" capture="environment"></span></div>
+  </div>`:''}`;
+  // events
+  $('#fecha').onchange=e=>{f.fecha=e.target.value||hoy();sugerirTanda()};
+  $('#turnos').onclick=e=>{const k=e.target.dataset.k;if(!k)return;f.turno=k;ls.set('qc_turno',k);renderReg();sugerirTanda()};
+  $('#fams').onclick=e=>{const id=+e.target.dataset.id;if(!id)return;if(f.fam!==id){f.fam=id;resetProd()}renderReg()};
+  const q=$('#q');if(q){q.oninput=e=>{f.q=e.target.value;const pos=e.target.selectionStart;renderReg();const n=$('#q');n.focus();n.setSelectionRange(pos,pos)}}
+  m.querySelectorAll('.pitem').forEach(b=>b.onclick=()=>{f.prod=+b.dataset.id;f.items={};f.q='';renderReg();sugerirTanda()});
+  const cb=$('#cambiar');if(cb)cb.onclick=()=>{resetProd();renderReg()};
+  const ta=$('#tanda');if(ta)ta.oninput=e=>f.tanda=+e.target.value;
+  const ca=$('#cant');if(ca)ca.oninput=e=>f.cantidad=e.target.value;
+  const td=$('#todo');if(td)td.onclick=()=>{cs.forEach(c=>{if(!f.items[c.id])f.items[c.id]='OK'});renderReg()};
+  m.querySelectorAll('.seg').forEach(s=>s.onclick=e=>{const v=e.target.dataset.v;if(!v)return;const c=+s.dataset.c;f.items[c]=f.items[c]===v?undefined:v;renderReg()});
+  const ac=$('#acc');if(ac)ac.onclick=e=>{const k=e.target.dataset.k;if(!k)return;f.accion=k;renderReg()};
+  const ob=$('#obs');if(ob)ob.oninput=e=>{f.obs=e.target.value;renderBar()};
+  const fo=$('#foto');if(fo)fo.onchange=async e=>{const file=e.target.files[0];if(!file)return;try{f.foto=await comprimir(file);if(f.fotoUrl)URL.revokeObjectURL(f.fotoUrl);f.fotoUrl=URL.createObjectURL(f.foto);renderReg()}catch(err){toast('No se pudo leer la imagen')}};
+  const qf=$('#qfoto');if(qf)qf.onclick=()=>{URL.revokeObjectURL(f.fotoUrl);f.foto=null;f.fotoUrl=null;renderReg()};
+  renderBar();
+}
+function resetProd(){const f=S.f;f.prod=null;f.items={};f.accion=null;f.obs='';f.cantidad='';f.q='';f.tanda=1;if(f.fotoUrl)URL.revokeObjectURL(f.fotoUrl);f.foto=null;f.fotoUrl=null}
+function renderBar(){
+  const bar=$('#bar');if(S.tab!=='registrar'||!S.f.prod){bar.innerHTML='';return}
+  const e=regEstado();
+  const lab=e.ok?`Resultado: <span class="badge b-${e.res}">${e.res}</span>`:esc(e.msg);
+  bar.innerHTML=`<div class="bar"><span class="st">${lab}</span><button class="btn" id="guardar" ${!e.ok||S.saving?'disabled':''}>${S.saving?'Guardando…':'Guardar'}</button></div>`;
+  $('#guardar').onclick=guardar;
+}
+function comprimir(file){return new Promise((res,rej)=>{const img=new Image();const u=URL.createObjectURL(file);img.onload=()=>{const M=1400;let{width:w,height:h}=img;const k=Math.min(1,M/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(),'image/jpeg',.8)};img.onerror=()=>{URL.revokeObjectURL(u);rej()};img.src=u})}
+async function guardar(){
+  const f=S.f;const e=regEstado();if(!e.ok||S.saving)return;
+  if(!(f.tanda>0)){toast('Revisa el número de tanda');return}
+  S.saving=true;renderBar();
+  try{
+    let foto_path=null;
+    if(f.foto){foto_path=`${f.fecha}/${crypto.randomUUID()}.jpg`;const {error}=await sb.storage.from('qc-fotos').upload(foto_path,f.foto,{contentType:'image/jpeg'});if(error)throw error}
+    const cs=famCrit(f.fam);
+    const {error}=await sb.rpc('qc_guardar_registro',{p:{fecha:f.fecha,turno:f.turno,producto_id:f.prod,tanda:f.tanda,cantidad:f.cantidad===''?null:f.cantidad,accion:f.accion,observaciones:f.obs,foto_path,items:cs.map(c=>({criterio_id:c.id,valor:f.items[c.id]}))}});
+    if(error)throw error;
+    toast(`Guardado: ${e.res}`);resetProd();window.scrollTo(0,0);
+  }catch(err){toast(errMsg(err))}
+  S.saving=false;renderReg();
+}
+
+/* ---------- historial ---------- */
+async function queryRegs(desde,hasta,extra){
+  let q=sb.from('qc_registros').select('*, qc_registro_items(criterio_id,criterio_nombre,valor)').gte('fecha',desde).lte('fecha',hasta).order('fecha',{ascending:false}).order('created_at',{ascending:false}).limit(3000);
+  if(extra)q=extra(q);const {data,error}=await q;if(error)throw error;return data||[];
+}
+async function renderHist(){
+  const h=S.h;const m=$('#m');$('#bar').innerHTML='';
+  m.innerHTML=`<div class="card"><div class="row">
+   <div><label class="l" for="hd">Desde</label><input type="date" id="hd" value="${h.desde}"></div>
+   <div><label class="l" for="hh">Hasta</label><input type="date" id="hh" value="${h.hasta}"></div>
+   <div><label class="l" for="ht">Turno</label><select id="ht"><option value="">Todos</option>${TURNOS.map(([k,v])=>`<option value="${k}" ${h.turno===k?'selected':''}>${v}</option>`).join('')}</select></div>
+   <div><label class="l" for="hf">Familia</label><select id="hf"><option value="">Todas</option>${S.fam.map(x=>`<option value="${x.id}" ${+h.fam===x.id?'selected':''}>${esc(x.nombre)}</option>`).join('')}</select></div>
+   <div><label class="l" for="hr">Resultado</label><select id="hr"><option value="">Todos</option>${['APROBADO','OBSERVADO','RECHAZADO'].map(k=>`<option ${h.res===k?'selected':''}>${k}</option>`).join('')}</select></div>
+  </div><button class="btn sec sm" id="csv">Descargar CSV</button></div><div class="card" id="lst"><p class="hint">Cargando…</p></div>`;
+  [['hd','desde'],['hh','hasta'],['ht','turno'],['hf','fam'],['hr','res']].forEach(([id,k])=>$('#'+id).onchange=e=>{h[k]=e.target.value;renderHist()});
+  let regs;try{regs=await queryRegs(h.desde,h.hasta,q=>{if(h.turno)q=q.eq('turno',h.turno);if(h.fam)q=q.eq('familia_id',+h.fam);if(h.res)q=q.eq('resultado',h.res);return q})}catch(e){$('#lst').innerHTML=`<div class="alert">${esc(errMsg(e))}</div>`;return}
+  $('#lst').innerHTML=regs.length?`<h3>${regs.length} registro${regs.length>1?'s':''}</h3>`+regs.map((r,i)=>`<div class="reg" data-i="${i}"><b>${esc(r.producto_nombre)}</b><span class="badge b-${esc(r.resultado)}">${esc(r.resultado)}</span>
+   <span class="m">${fmtF(r.fecha)} · ${esc(r.turno)} · Tanda ${esc(r.tanda)}${r.cantidad!=null?` · ${esc(r.cantidad)} und.`:''} · ${esc(r.supervisor_nombre)}${r.foto_path?' · 📷':''}</span></div>`).join(''):'<p class="hint">No hay registros con esos filtros.</p>';
+  $('#lst').querySelectorAll('.reg').forEach(d=>d.onclick=()=>detalle(regs[+d.dataset.i]));
+  $('#csv').onclick=()=>csv(regs);
+}
+async function detalle(r){
+  const w=document.createElement('div');w.className='modal';
+  const items=(r.qc_registro_items||[]).slice().sort((a,b)=>a.criterio_id-b.criterio_id);
+  w.innerHTML=`<div class="in"><div class="flex" style="justify-content:space-between"><h2 style="margin:0">${esc(r.producto_nombre)}</h2><span class="badge b-${esc(r.resultado)}">${esc(r.resultado)}</span></div>
+  <p class="hint">${esc(famName(r.familia_id))} · ${fmtF(r.fecha)} · ${esc(r.turno)} · Tanda ${esc(r.tanda)}${r.cantidad!=null?` · ${esc(r.cantidad)} und.`:''}<br>Supervisor: ${esc(r.supervisor_nombre)} · ${new Date(r.created_at).toLocaleString('es-PE',{timeZone:'America/Lima'})}</p>
+  <table>${items.map(i=>`<tr><td>${esc(i.criterio_nombre)}</td><td style="text-align:right;font-weight:800;color:${i.valor==='OK'?'var(--ok)':i.valor==='NO'?'var(--no)':'var(--na)'}">${i.valor==='OK'?'✔':i.valor==='NO'?'✘':'N/A'}</td></tr>`).join('')}</table>
+  ${r.accion?`<p><b>Acción:</b> ${esc((ACC.find(a=>a[0]===r.accion)||[])[1]||r.accion)}</p>`:''}
+  ${r.observaciones?`<p><b>Observaciones:</b> ${esc(r.observaciones)}</p>`:''}
+  <div id="fimg"></div>
+  <div class="flex" style="margin-top:14px">${S.perfil.rol==='admin'?'<button class="btn danger sm" id="del">Eliminar</button>':''}<span style="flex:1"></span><button class="btn" id="cerrar">Cerrar</button></div></div>`;
+  document.body.appendChild(w);
+  w.onclick=e=>{if(e.target===w)w.remove()};$('#cerrar').onclick=()=>w.remove();
+  const d=w.querySelector('#del');if(d)d.onclick=async()=>{if(d.dataset.c!=='1'){d.dataset.c='1';d.textContent='¿Seguro? Toca otra vez';return}
+    const {error}=await sb.from('qc_registros').delete().eq('id',r.id);if(error){toast(errMsg(error));return}
+    if(r.foto_path)await sb.storage.from('qc-fotos').remove([r.foto_path]);w.remove();toast('Registro eliminado');renderHist()};
+  if(r.foto_path){const {data}=await sb.storage.from('qc-fotos').createSignedUrl(r.foto_path,600);if(data){const img=document.createElement('img');img.src=data.signedUrl;img.alt='Foto del producto';img.style.cssText='width:100%;border-radius:12px;margin-top:8px';w.querySelector('#fimg').appendChild(img)}}
+}
+function csv(regs){
+  const cols=['Fecha','Turno','Supervisor','Familia','Producto','Tanda','Cantidad','Resultado','Accion','Criterios no conformes','Observaciones','Registrado'];
+  const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;
+  const rows=regs.map(r=>[r.fecha,r.turno,r.supervisor_nombre,famName(r.familia_id),r.producto_nombre,r.tanda,r.cantidad,r.resultado,r.accion,(r.qc_registro_items||[]).filter(i=>i.valor==='NO').map(i=>i.criterio_nombre).join(' | '),r.observaciones,new Date(r.created_at).toLocaleString('es-PE',{timeZone:'America/Lima'})].map(q).join(';'));
+  const blob=new Blob(['﻿'+[cols.map(q).join(';'),...rows].join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`control_calidad_${S.h.desde}_${S.h.hasta}.csv`;document.body.appendChild(a);a.click();a.remove();
+}
+
+/* ---------- reportes ---------- */
+async function renderRep(){
+  const r=S.r;const m=$('#m');$('#bar').innerHTML='';
+  m.innerHTML=`<div class="card"><div class="row" style="margin:0"><div><label class="l" for="rd">Desde</label><input type="date" id="rd" value="${r.desde}"></div><div><label class="l" for="rh">Hasta</label><input type="date" id="rh" value="${r.hasta}"></div></div></div><div id="rc"><p class="hint">Cargando…</p></div>`;
+  $('#rd').onchange=e=>{r.desde=e.target.value;renderRep()};$('#rh').onchange=e=>{r.hasta=e.target.value;renderRep()};
+  let regs;try{regs=await queryRegs(r.desde,r.hasta)}catch(e){$('#rc').innerHTML=`<div class="alert">${esc(errMsg(e))}</div>`;return}
+  if(!regs.length){$('#rc').innerHTML='<div class="card"><p class="hint">No hay registros en este periodo.</p></div>';return}
+  const n=regs.length,c=k=>regs.filter(x=>x.resultado===k).length;
+  const ap=c('APROBADO'),ob=c('OBSERVADO'),re=c('RECHAZADO');
+  const pct=(a,b)=>b?Math.round(a*100/b):0;
+  const grupo=(key,label)=>{const g={};regs.forEach(x=>{const k=key(x);(g[k]=g[k]||{t:0,a:0}).t++;if(x.resultado==='APROBADO')g[k].a++});
+    return Object.entries(g).map(([k,v])=>({k:label?label(k):k,t:v.t,p:pct(v.a,v.t)})).sort((a,b)=>a.p-b.p||b.t-a.t)};
+  const bars=(arr,title,hint)=>`<div class="card"><h3>${title}</h3>${hint?`<p class="hint" style="margin-top:-6px">${hint}</p>`:''}${arr.map(x=>`<div class="hb"><span>${esc(x.k)} <span class="hint">(${x.t})</span></span><div class="t"><div class="f" style="width:${x.p}%"></div></div><span class="p">${x.p}%</span></div>`).join('')}</div>`;
+  const fallos={};regs.forEach(x=>(x.qc_registro_items||[]).forEach(i=>{if(i.valor==='NO')fallos[i.criterio_nombre]=(fallos[i.criterio_nombre]||0)+1}));
+  const fa=Object.entries(fallos).sort((a,b)=>b[1]-a[1]);const fmax=fa.length?fa[0][1]:1;
+  const prodMal={};regs.filter(x=>x.resultado!=='APROBADO').forEach(x=>{const p=prodMal[x.producto_nombre]=prodMal[x.producto_nombre]||{o:0,r:0};x.resultado==='RECHAZADO'?p.r++:p.o++});
+  const pm=Object.entries(prodMal).sort((a,b)=>(b[1].r+b[1].o)-(a[1].r+a[1].o)).slice(0,10);
+  $('#rc').innerHTML=`<div class="kpis">
+   <div class="kpi"><div class="v">${pct(ap,n)}%</div><div class="k">Conformidad (${ap} de ${n})</div></div>
+   <div class="kpi"><div class="v" style="color:var(--obs)">${ob}</div><div class="k">Observados</div></div>
+   <div class="kpi"><div class="v" style="color:var(--no)">${re}</div><div class="k">Rechazados</div></div>
+   <div class="kpi"><div class="v">${n}</div><div class="k">Tandas evaluadas</div></div></div>
+  ${bars(grupo(x=>famName(x.familia_id)),'Conformidad por familia','% de tandas aprobadas sin observaciones')}
+  ${bars(grupo(x=>x.turno,k=>(TURNOS.find(t=>t[0]===k)||[k,k])[1]),'Conformidad por turno')}
+  ${bars(grupo(x=>x.supervisor_nombre),'Conformidad por supervisor')}
+  <div class="card"><h3>Criterios que más fallan</h3>${fa.length?fa.map(([k,v])=>`<div class="hb"><span>${esc(k)}</span><div class="t"><div class="f r" style="width:${Math.round(v*100/fmax)}%"></div></div><span class="p">${v}</span></div>`).join(''):'<p class="hint">Sin criterios no conformes 🎉</p>'}</div>
+  <div class="card"><h3>Productos con más problemas</h3>${pm.length?`<table><tr><th>Producto</th><th style="text-align:right">Obs.</th><th style="text-align:right">Rech.</th></tr>${pm.map(([k,v])=>`<tr><td>${esc(k)}</td><td style="text-align:right">${v.o}</td><td style="text-align:right;color:var(--no);font-weight:700">${v.r}</td></tr>`).join('')}</table>`:'<p class="hint">Todo aprobado.</p>'}</div>`;
+}
+
+/* ---------- configuración (admin) ---------- */
+async function renderCfg(){
+  const m=$('#m');$('#bar').innerHTML='';
+  const {data:us}=await sb.from('qc_perfiles').select('*').order('nombre');
+  const fid=S.cfgFam||(S.fam[0]&&S.fam[0].id);S.cfgFam=fid;
+  const famsAct=S.fam;
+  m.innerHTML=`
+  <div class="card"><h2>Usuarios</h2>
+   <p class="hint">Primero crea el usuario (correo y contraseña) en Supabase › Authentication › Users. Luego dale acceso aquí.</p>
+   <table>${(us||[]).map(u=>`<tr><td>${esc(u.nombre)}<br><span class="hint">${u.rol==='admin'?'Administrador':'Supervisor'}</span></td><td style="text-align:right"><button class="btn sm ${u.activo?'sec':''}" data-u="${esc(u.user_id)}" data-a="${u.activo?1:0}" ${u.user_id===S.user.id?'disabled':''}>${u.activo?'Desactivar':'Activar'}</button></td></tr>`).join('')}</table>
+   <form id="nu" class="row" style="margin-top:12px"><input type="email" id="nue" placeholder="Correo" required><input type="text" id="nun" placeholder="Nombre" required>
+   <select id="nur"><option value="supervisor">Supervisor</option><option value="admin">Administrador</option></select><button class="btn">Dar acceso</button></form></div>
+  <div class="card"><h2>Criterios por familia</h2><p class="hint">Marca qué se evalúa en cada familia.</p>
+   <div class="mx"><table><tr><th>Criterio</th>${famsAct.map(f=>`<th title="${esc(f.nombre)}">${esc(f.nombre.split(' ')[0])}</th>`).join('')}</tr>
+   ${S.cri.map(c=>`<tr><td>${esc(c.nombre)}</td>${famsAct.map(f=>`<td><input type="checkbox" data-f="${f.id}" data-c="${c.id}" ${S.fc.some(x=>x.familia_id===f.id&&x.criterio_id===c.id)?'checked':''} aria-label="${esc(c.nombre)} en ${esc(f.nombre)}"></td>`).join('')}</tr>`).join('')}</table></div>
+   <form id="nc" class="flex" style="margin-top:12px"><input type="text" id="ncn" placeholder="Nuevo criterio" required style="flex:1"><button class="btn sm">Agregar</button></form></div>
+  <div class="card"><h2>Productos</h2>
+   <select id="cf">${S.fam.map(f=>`<option value="${f.id}" ${f.id===fid?'selected':''}>${esc(f.nombre)}</option>`).join('')}</select>
+   <table style="margin-top:8px">${S.pro.filter(p=>p.familia_id===fid).map(p=>`<tr><td style="${p.activo?'':'color:var(--mute);text-decoration:line-through'}">${esc(p.nombre)}</td><td style="text-align:right"><button class="btn sec sm" data-p="${p.id}" data-a="${p.activo?1:0}">${p.activo?'Desactivar':'Activar'}</button></td></tr>`).join('')}</table>
+   <form id="np" class="flex" style="margin-top:12px"><input type="text" id="npn" placeholder="Nuevo producto (ej. PVP. PAN …)" required style="flex:1"><button class="btn sm">Agregar</button></form>
+   <form id="nf" class="flex" style="margin-top:12px"><input type="text" id="nfn" placeholder="Nueva familia" required style="flex:1"><button class="btn sec sm">Crear familia</button></form></div>`;
+  const run=async(p,ok)=>{const {error}=await p;if(error){toast(errMsg(error));return false}if(ok)toast(ok);await loadCatalogo();renderCfg();return true};
+  m.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>run(sb.from('qc_perfiles').update({activo:b.dataset.a!=='1'}).eq('user_id',b.dataset.u)));
+  $('#nu').onsubmit=e=>{e.preventDefault();run(sb.rpc('qc_alta_usuario',{p_email:$('#nue').value,p_nombre:$('#nun').value,p_rol:$('#nur').value}),'Acceso otorgado')};
+  m.querySelectorAll('.mx input').forEach(i=>i.onchange=()=>{const f=+i.dataset.f,c=+i.dataset.c;const cr=S.cri.find(x=>x.id===c);
+    run(i.checked?sb.from('qc_familia_criterio').insert({familia_id:f,criterio_id:c,orden:cr.orden}):sb.from('qc_familia_criterio').delete().eq('familia_id',f).eq('criterio_id',c))});
+  $('#nc').onsubmit=e=>{e.preventDefault();run(sb.from('qc_criterios').insert({nombre:$('#ncn').value.trim(),orden:Math.max(0,...S.cri.map(c=>c.orden))+1}),'Criterio agregado')};
+  $('#cf').onchange=e=>{S.cfgFam=+e.target.value;renderCfg()};
+  m.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>run(sb.from('qc_productos').update({activo:b.dataset.a!=='1'}).eq('id',+b.dataset.p)));
+  $('#np').onsubmit=e=>{e.preventDefault();const ps=S.pro.filter(p=>p.familia_id===fid);run(sb.from('qc_productos').insert({familia_id:fid,nombre:$('#npn').value.trim().toUpperCase(),orden:Math.max(0,...ps.map(p=>p.orden))+1}),'Producto agregado')};
+  $('#nf').onsubmit=e=>{e.preventDefault();run(sb.from('qc_familias').insert({nombre:$('#nfn').value.trim(),orden:Math.max(0,...S.fam.map(f=>f.orden))+1}),'Familia creada')};
+}
+
+sb.auth.onAuthStateChange(ev=>{if(ev==='SIGNED_OUT')renderLogin()});
+init().catch(e=>renderLogin(errMsg(e)));
+}
+</script>
+</body>
+</html>
